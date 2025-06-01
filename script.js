@@ -4,73 +4,74 @@ const productContainer = document.getElementById("product-container");
 
 const baseEnd = "https://btl-products-api.onrender.com/products";
 
+// fetch your products from the API
 const fetchProducts = async () => {
   try {
-    const response = await fetch(baseEnd);
+    const response = await fetch(baseEnd, { method: "GET" });
     console.log(response);
-
     const data = await response.json();
-    displayData(data);
-    // console.log(data);
+    displayProducts(data);
+    console.log(data);
   } catch (error) {
     console.log(error);
-  } finally {
-    console.log("");
   }
+  // finally {
+  //   console.log("");
+  // }
 };
 fetchProducts();
 
-const displayData = (data) => {
-  console.log(data);
-
-  data.forEach((item, index) => {
+// CREATE A DIV TO HOLD THE PRODUCT CARDS THAT WILL BE DISPLAYED
+const displayProducts = (products) => {
+  products.forEach((product) => {
     const productCard = document.createElement("div");
     productCard.classList.add("product-card");
     productCard.innerHTML = `
-  <img src= ${item.image} alt = ${item.title}/>
-  <h2 class= "title"> ${item.title}</h2>
-  <p class ="description"> ${item.description}</p>
-  <p class="price">Price: &#8373;${item.price}</p>
+  <img src= ${product.image} alt = ${product.title}/>
+  <h2 class= "title"> ${product.title}</h2>
+  <p class ="description"> ${product.description}</p>
+  <p class="price">Price: &#8373;${product.price}</p>
   <button class="buttons delete-btn"> Delete</button>
   `;
     productContainer.appendChild(productCard);
 
-    // const deleteBtn = productCard.querySelector(".delete-btn");
-    // deleteBtn.addEventListener("click", () => {
-    //   productCard.remove();
-    // });
+    const deleteBtn = productCard.querySelector(".delete-btn");
+    deleteBtn.addEventListener("click", () => {
+      productCard.remove();
+    });
   });
 };
 
-const addProducts = async () => {
-        try {
-            const response = await fetch(baseEnd, {method:"POST", body:JSON.stringify(item),
-                headers:{ "Content-Type":"application/json",
-  },
-            });
-            if(!response.ok){throw new Error("Error sending data");
-
-            }
-            const data =await response.json();
-            console.log(data);
-            return data;
-            
-            
-        } catch (error) {}
-      };
+// MAKE A POST REQUEST TO THE API
+const addProduct = async (product) => {
+  try {
+    const response = await fetch(baseEnd, {
+      method: "POST",
+      body: JSON.stringify(product),
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!response) {
+      throw new Error("Error sending data");
+    }
+    const data = await response.json();
+    console.log(data);
+  } catch (error) {
+    console.log("Error posting data", error);
+  }
+};
 
 form.addEventListener("submit", submitDocument);
 function submitDocument(event) {
   event.preventDefault();
 
-  const name = document.getElementById("name").value;
+  const title = document.getElementById("name").value;
   const description = document.getElementById("description").value;
   const image = document.getElementById("image-url").value;
   const price = document.getElementById("price").value;
   const brand = document.getElementById("brand").value;
 
   if (
-    name.length === 0 ||
+    title.length === 0 ||
     description.length === 0 ||
     image.length === 0 ||
     price.length === 0 ||
@@ -80,7 +81,17 @@ function submitDocument(event) {
     message.classList.add("error");
     return;
   }
-  form.reset();
+  const newProduct = {
+    title,
+    description,
+    image,
+    price,
+    brand,
+  };
+  console.log(newProduct);
+
+  addProduct(newProduct);
   message.innerText = "Product added successfully!";
-  message.className = "success";
+  message.classList.add("success");
+  // form.reset();
 }
